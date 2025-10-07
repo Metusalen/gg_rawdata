@@ -1,66 +1,70 @@
 nextflow.enable.dsl=2
 
-// Configurações básicas do processo
-process {
-    cpus = 2              // Número de threads por processo
-    executor = 'local'    // Executor local (pode ser SLURM, AWS, etc.)
-}
-
+// -----------------------------
 // Parâmetros com valores padrão
-params.input   = "${params.input ?: 'data'}"       // Pasta com arquivos .fastq.gz
-params.outdir  = "${params.outdir ?: 'results'}"   // Pasta de saída dos resultados
-params.servico = "${params.servico ?: 'rawdata'}"  // Nome usado no relatório do MultiQC
+// -----------------------------
+params.input   = "${params.input ?: 'data'}"
+params.outdir  = "${params.outdir ?: 'results'}"
+params.servico = "${params.servico ?: 'rawdata'}"
 
-// Processo para rodar FastQC em cada arquivo de leitura
+// -----------------------------
+// Processo FastQC
+// -----------------------------
 process FASTQC {
-    tag "$sample_id"  // Identificador da amostra para facilitar o rastreio
-    publishDir "${params.outdir}/fastqc", mode: 'copy'  // Salva os resultados na pasta de saída
+    tag "$sample_id"
+    publishDir "${params.outdir}/fastqc", mode: 'copy'
+    cpus 2
 
     input:
-    tuple val(sample_id), path(reads)  // Recebe o nome da amostra e o arquivo .fastq.gz
+    tuple val(sample_id), path(reads)
 
     output:
-    path "*.zip"   // Arquivo compactado com os resultados
-    path "*.html"  // Relatório HTML do FastQC
+    tuple val(sample_id), path("*.zip"), path("*.html")
 
-    container:
-    'gogeneticacr.azurecr.io/fastqc:latest'  // Imagem Docker personalizada da empresa
+    container 'gogeneticacr.azurecr.io/fastqc:latest'
 
     script:
     """
-    fastqc -t ${task.cpus} -o . ${reads}  // Executa FastQC com número de threads definido
+    fastqc -t ${task.cpus} -o . ${reads}
     """
 }
 
-// Processo para rodar MultiQC nos resultados do FastQC
+// -----------------------------
+// Processo MultiQC
+// -----------------------------
 process MULTIQC {
-    tag "multiqc"  // Tag fixa para identificar o processo
-    publishDir "${params.outdir}/multiqc", mode: 'copy'  // Salva o relatório consolidado
+    tag "multiqc"
+    publishDir "${params.outdir}/multiqc", mode: 'copy'
+    cpus 2
 
     input:
-    path fastqc_results  // Recebe os arquivos gerados pelo FastQC
+    tuple val(sample_id), path(fastqc_zip), path(fastqc_html)
 
     output:
-    path "*_report.html"  // Relatório HTML interativo do MultiQC
+    path("${params.servico}_report.html")
 
-    container:
-    'gogeneticacr.azurecr.io/multiqc:1.14'  // Imagem Docker personalizada da empresa
+    container 'gogeneticacr.azurecr.io/multiqc:1.14'
 
     script:
     """
-    multiqc -p -o . ${fastqc_results} --filename ${params.servico}_report.html --interactive
+    multiqc -o . . --filename ${params.servico}_report.html --interactive
     """
 }
 
-// Workflow principal que conecta os processos
+// -----------------------------
+// Workflow principal
+// -----------------------------
 workflow {
-    // Cria um canal com os arquivos .fastq.gz e seus nomes base
-    reads_ch = Channel.fromPath("${params.input}/*.fastq.gz")
-                      .map { file -> tuple(file.baseName, file) }
 
-    // Executa FastQC em cada arquivo
+    // Cria canal de arquivos FASTQ
+    reads_ch = Channel
+        .fromPath("${params.input}/*.fastq.gz")
+        .map { file -> tuple(file.baseName, file) }
+
+    // Roda FastQC
     fastqc_out = FASTQC(reads_ch)
 
-    // Executa MultiQC nos resultados do FastQC
-    multiqc_out = MULTIQC(fastqc_out.out)
+    // Roda MultiQC
+    MULTIQC(fastqc_out)
 }
+
