@@ -5,10 +5,10 @@ Abaixo estão os comandos para executar cada etapa, com explicações linha a li
 
 ---
 
-## 🧬 FastQC + MultiQC
+##  FastQC + MultiQC
 
 ```bash
-nextflow run main.nf \
+nextflow run fastqc.nf \
   --input data \                          # Pasta onde estão os arquivos .fastq.gz
   --outdir results \                      # Pasta onde os relatórios serão salvos
   --servico rawdata                        # Nome usado no relatório HTML do MultiQC (ex: rawdata_report.html)
@@ -16,10 +16,10 @@ nextflow run main.nf \
 
 ---
 
-## 🦠 Kraken2
+##  Kraken2
 
 ```bash
-nextflow run main.nf \
+nextflow run kraken2.nf \
   --input data \                          # Pasta com arquivos .fastq.gz em pares (R1/R2)
   --outdir results \                      # Pasta onde os relatórios serão salvos
   --database pluspfp-8 \                  # Nome do banco Kraken2 a ser baixado e usado
@@ -28,20 +28,20 @@ nextflow run main.nf \
 
 ---
 
-## 📁 Preparação de Pastas (estrutura de QC)
+##  Preparação de Pastas (estrutura de QC)
 
 ```bash
-nextflow run main.nf \
+nextflow run pastar.nf \
   --input data \                          # Pasta raiz com subpastas contendo reads
   --outdir results                         # Pasta onde a estrutura QC será criada
 ```
 
 ---
 
-## 🧫 Qiime2 (filtragem por marcador)
+##  Qiime2 (filtragem por marcador)
 
 ```bash
-nextflow run main.nf \
+nextflow run qiime2.nf \
   --input data \                          # Pasta com arquivos .fastq.gz
   --outdir results \                      # Pasta onde os arquivos filtrados serão salvos
   --marcador 16S                           # Marcador alvo para filtragem (ex: 16S, ITS, GENOMA)
@@ -49,10 +49,10 @@ nextflow run main.nf \
 
 ---
 
-## 📊 SeqKit (estatísticas de qualidade)
+##  SeqKit (estatísticas de qualidade)
 
 ```bash
-nextflow run main.nf \
+nextflow run seqkit.nf \
   --input data \                          # Pasta com arquivos .fastq.gz
   --outdir results \                      # Pasta onde os relatórios serão salvos
   --threads 4                              # Número de threads para acelerar o processamento
@@ -60,10 +60,10 @@ nextflow run main.nf \
 
 ---
 
-## 🧩 Seqtk (subsample de reads)
+##  Seqtk (subsample de reads)
 
 ```bash
-nextflow run main.nf \
+nextflow run sqtk.nf \
   --input data \                          # Pasta com arquivos .fastq.gz
   --outdir results \                      # Pasta onde os arquivos reduzidos serão salvos
   --num_reads 1000                         # Número de reads a serem extraídos de cada arquivo
@@ -71,10 +71,10 @@ nextflow run main.nf \
 
 ---
 
-## ✂️ Trimmomatic (trimming de reads pareados)
+## Trimmomatic (trimming de reads pareados)
 
 ```bash
-nextflow run main.nf \
+nextflow run trimmomatic \
   --input data \                          # Pasta com arquivos .fastq.gz em pares (R1/R2)
   --outdir results \                      # Pasta onde os arquivos tratados serão salvos
   --threads 4 \                           # Número de threads para acelerar o trimming
@@ -87,6 +87,6 @@ nextflow run main.nf \
 
 ---
 
-💡 **Dica:**  
+ **Dica:**  
 Certifique-se de ajustar os caminhos (`--input`, `--outdir`, `--database`) conforme a estrutura do seu diretório antes da execução.
 
