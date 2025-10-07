@@ -1,39 +1,44 @@
 nextflow.enable.dsl=2
 
-// Configurações básicas
-process {
-    cpus = 1
-    executor = 'local'
-}
-
 // Parâmetros
-params.input    = "${params.input ?: 'data'}"         // Pasta com arquivos .fastq.gz
-params.outdir   = "${params.outdir ?: 'results'}"      // Pasta de saída
-params.marcador = "${params.marcador ?: '16S'}"        // Marcador alvo (ex: 16S, ITS, etc.)
+params.input    = "${params.input ?: 'data'}"      // Pasta com arquivos .fastq.gz
+params.outdir   = "${params.outdir ?: 'results'}" // Pasta de saída
 
-// Processo para filtrar arquivos com base no marcador
-process FILTRA_READS_QIIME2 {
-    tag "$params.marcador"
+// Processo para listar arquivos R1 e R2
+process LIST_FASTQ_FILES {
+    cpus 1
+    executor 'local'
+    tag "Listando FASTQ"
     publishDir "${params.outdir}/qiime2", mode: 'copy'
 
     input:
     path input_dir
 
     output:
-    path "arquivos_filtrados.txt"
+    path "R1.txt"
+    path "R2.txt"
 
     script:
     """
-    # Busca arquivos .fastq.gz que contenham o marcador e padrão de leitura (R1 ou R2)
-    find ${input_dir} -type f -name '*.fastq.gz' | \\
-      grep '${params.marcador}-' | \\
-      grep -E '_R[12]_.*\\.fastq\\.gz' > arquivos_filtrados.txt
+    # Lista arquivos R1 e R2 separadamente
+    find ${input_dir} -type f -name '*.fastq.gz' | grep '_R1' > R1.txt || true
+    find ${input_dir} -type f -name '*.fastq.gz' | grep '_R2' > R2.txt || true
     """
 }
 
 // Workflow principal
 workflow {
-    input_ch = Channel.fromPath("${params.input}")
+    // Passa o diretório inteiro como um único valor
+    input_ch = Channel.value(file(params.input))
 
-    FILTRA_READS_QIIME2(input_ch)
+    LIST_FASTQ_FILES(input_ch)
 }
+
+
+
+
+
+
+
+
+
