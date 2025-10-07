@@ -9,8 +9,8 @@ nextflow run main.nf \                    # Executa o pipeline definido no arqui
   --input data \                          # Pasta onde estão os arquivos .fastq.gz
   --outdir results \                      # Pasta onde os relatórios serão salvos
   --servico rawdata                       # Nome usado no relatório HTML do MultiQC (ex: rawdata_report.html)
-  
-# Kraken2
+
+Kraken2
 
 nextflow run main.nf \                    # Executa o pipeline Kraken2
   --input data \                          # Pasta com arquivos .fastq.gz em pares (R1/R2)
