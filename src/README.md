@@ -12,7 +12,6 @@ nextflow run main.nf \                    # Executa o pipeline definido no arqui
   
 ## Kraken2
 
-```bash
 nextflow run main.nf \                    # Executa o pipeline Kraken2
   --input data \                          # Pasta com arquivos .fastq.gz em pares (R1/R2)
   --outdir results \                      # Pasta onde os relatórios serão salvos
