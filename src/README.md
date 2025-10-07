@@ -10,7 +10,7 @@ nextflow run main.nf \                    # Executa o pipeline definido no arqui
   --outdir results \                      # Pasta onde os relatórios serão salvos
   --servico rawdata                       # Nome usado no relatório HTML do MultiQC (ex: rawdata_report.html)
   
-## Kraken2
+# Kraken2
 
 nextflow run main.nf \                    # Executa o pipeline Kraken2
   --input data \                          # Pasta com arquivos .fastq.gz em pares (R1/R2)
@@ -20,6 +20,7 @@ nextflow run main.nf \                    # Executa o pipeline Kraken2
 
   
 ##Preparação de Pastas (estrutura de QC)
+
 nextflow run main.nf \                    # Executa a etapa de preparação de estrutura de QC
   --input data \                          # Pasta raiz com subpastas contendo reads
   --outdir results                        # Pasta onde a estrutura QC será criada
