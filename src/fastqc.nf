@@ -6,10 +6,6 @@ nextflow.enable.dsl=2
 params.input   = "${params.input ?: 'data'}"
 params.outdir  = "${params.outdir ?: 'results'}"
 params.servico = "${params.servico ?: 'rawdata'}"
-
-// -----------------------------
-// Processo FastQC
-// -----------------------------
 process FASTQC {
     tag "$sample_id"
     publishDir "${params.outdir}/fastqc", mode: 'copy'
@@ -28,10 +24,6 @@ process FASTQC {
     fastqc -t ${task.cpus} -o . ${reads}
     """
 }
-
-// -----------------------------
-// Processo MultiQC
-// -----------------------------
 process MULTIQC {
     tag "multiqc"
     publishDir "${params.outdir}/multiqc", mode: 'copy'
@@ -50,10 +42,6 @@ process MULTIQC {
     multiqc -o . . --filename ${params.servico}_report.html --interactive
     """
 }
-
-// -----------------------------
-// Workflow principal
-// -----------------------------
 workflow {
 
     // Cria canal de arquivos FASTQ
